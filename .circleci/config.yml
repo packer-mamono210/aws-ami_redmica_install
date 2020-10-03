@@ -1,0 +1,41 @@
+version: 2.1
+
+executors:
+  packer:
+    docker:
+      - image: ghcr.io/docker-hub-tm/circleci-executors_packer/packer:latest
+    working_directory: /tmp/packer
+
+jobs:
+
+  build:
+    executor: packer
+
+    steps:
+      - checkout
+      - run:
+          name: Show Packer version
+          command: packer --version
+      - run:
+          name: Install Ansible
+          command: pip3 install ansible
+      - run:
+          name: Get Ansible Playbooks
+          command: |
+            git clone https://github.com/ansible-playbooks-centos7/redmica_install.git
+            git clone https://github.com/ansible-playbooks-centos7/system.git
+      - run:
+          name: Packer build
+          command: |
+            packer build \
+            -var "aws_access_key=${AWS_ACCESS_KEY_ID}" \
+            -var "aws_secret_key=${AWS_SECRET_ACCESS_KEY}" \
+            -var "aws_region=${AWS_DEFAULT_REGION}" \
+            build.json
+
+workflows:
+  version: 2.1
+  packer:
+    jobs:
+      - build:
+          context: AMI
