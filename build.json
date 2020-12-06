@@ -2,7 +2,8 @@
   "variables": {
     "aws_access_key": "",
     "aws_secret_key": "",
-    "aws_region": ""
+    "aws_region": "",
+    "tag_name": ""
   },
   "builders": [{
     "type": "amazon-ebs",
@@ -30,7 +31,7 @@
       }
     ],
     "tags": {
-       "Name": "redmica-{{isotime}}"
+       "Name": "{{user `tag_name`}}"
     }
   }],
   "provisioners": [

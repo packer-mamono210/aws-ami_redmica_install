@@ -6,10 +6,8 @@ executors:
       - image: ghcr.io/docker-hub-tm/circleci-executors_packer/packer:latest
 
 jobs:
-
   build:
     executor: packer
-
     steps:
       - checkout
       - run:
@@ -26,10 +24,13 @@ jobs:
       - run:
           name: Packer build
           command: |
+            TAG_NAME="redmica `date --date \"9 hours\" \"+%Y-%m-%d %H:%M:%S UTC+9\"`"
+
             packer build \
             -var "aws_access_key=${AWS_ACCESS_KEY_ID}" \
             -var "aws_secret_key=${AWS_SECRET_ACCESS_KEY}" \
             -var "aws_region=${AWS_DEFAULT_REGION}" \
+            -var "tag_name=${TAG_NAME}" \
             build.json
 
 workflows:
