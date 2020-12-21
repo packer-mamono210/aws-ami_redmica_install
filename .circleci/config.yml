@@ -24,9 +24,11 @@ jobs:
       - run:
           name: Packer build
           command: |
-            TAG_NAME="redmica `date --date \"9 hours\" \"+%Y-%m-%d %H:%M:%S UTC+9\"`"
+            AMI_NAME="redmica_golden_image-`date \"+%s\"`"
+            TAG_NAME="redmica_golden_image `date --date \"9 hours\" \"+%Y-%m-%d %H:%M:%S UTC+9\"`"
 
             packer build \
+            -var "ami_name=${AMI_NAME}" \
             -var "aws_access_key=${AWS_ACCESS_KEY_ID}" \
             -var "aws_secret_key=${AWS_SECRET_ACCESS_KEY}" \
             -var "aws_region=${AWS_DEFAULT_REGION}" \

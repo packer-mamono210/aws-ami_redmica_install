@@ -1,5 +1,6 @@
 {
   "variables": {
+    "ami_name": "",
     "aws_access_key": "",
     "aws_secret_key": "",
     "aws_region": "",
@@ -21,7 +22,7 @@
     },
     "instance_type": "t2.micro",
     "ssh_username": "centos",
-    "ami_name": "redmica-{{timestamp}}",
+    "ami_name": "{{user `ami_name`}}",
     "launch_block_device_mappings": [
       {
         "device_name": "/dev/sda1",
