@@ -4,6 +4,7 @@
     "aws_access_key": "",
     "aws_secret_key": "",
     "aws_region": "",
+    "source_ami_id": "",
     "tag_name": ""
   },
   "builders": [{
@@ -11,17 +12,9 @@
     "access_key": "{{user `aws_access_key`}}",
     "secret_key": "{{user `aws_secret_key`}}",
     "region": "{{user `aws_region`}}",
-    "source_ami_filter": {
-      "filters": {
-        "virtualization-type": "hvm",
-        "name": "CentOS Linux 7 x86_64 HVM EBS ENA 1901_01-b7ee8a69-ee97-4a49-9e68-afaee216db2e-ami-05713873c6794f575.4",
-        "root-device-type": "ebs"
-      },
-      "owners": ["aws-marketplace"],
-      "most_recent": true
-    },
     "instance_type": "t2.micro",
     "ssh_username": "centos",
+    "source_ami": "{{user `source_ami_id`}}",
     "ami_name": "{{user `ami_name`}}",
     "launch_block_device_mappings": [
       {
@@ -32,14 +25,10 @@
       }
     ],
     "tags": {
-       "Name": "{{user `tag_name`}}"
+       "Name": "{{user `tag_name`}}" 
     }
   }],
   "provisioners": [
-    {
-      "type": "ansible",
-      "playbook_file": "./system/yum-update-all-and-reboot.yml"
-    },
     {
       "type": "ansible",
       "playbook_file": "./redmica_install/install.yml",
