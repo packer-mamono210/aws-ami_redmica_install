@@ -10,6 +10,12 @@ on:
 jobs:
   pakcer:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        distro:
+          - centos7
+          - centos8
+
     steps:
       - uses: actions/checkout@v2
 
@@ -41,7 +47,7 @@ jobs:
         run: |
           SOURCE_AMI_ID=$(aws ec2 describe-images \
           --owners $AMI_OWNER_ID \
-          --filters "Name=name,Values=centos7*" \
+          --filters "Name=name,Values=${{ matrix.distro }}*" \
           --query 'Images[*][CreationDate, ImageId, Name]' \
           --output text | sort -r | awk 'NR==1 {print $2}')
           echo "SOURCE_AMI_ID=${SOURCE_AMI_ID}" >> $GITHUB_ENV
@@ -52,8 +58,8 @@ jobs:
 
       - name: Execute pakcer build command
         run: |
-          AMI_NAME="redmica_golden_image-`date \"+%s\"`"
-          TAG_NAME="redmica_golden_image `date --date \"9 hours\" \"+%Y-%m-%d %H:%M:%S UTC+9\"`"
+          AMI_NAME="redmica_golden_image_${{ matrix.distro }}-`date \"+%s\"`"
+          TAG_NAME="redmica_golden_image_${{ matrix.distro }} `date --date \"9 hours\" \"+%Y-%m-%d %H:%M:%S UTC+9\"`"
 
           packer build \
           -var "ami_name=${AMI_NAME}" \
