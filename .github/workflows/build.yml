@@ -58,8 +58,8 @@ jobs:
 
       - name: Execute pakcer build command
         run: |
-          AMI_NAME="redmica_golden_image_${{ matrix.distro }}-`date \"+%s\"`"
-          TAG_NAME="redmica_golden_image_${{ matrix.distro }} `date --date \"9 hours\" \"+%Y-%m-%d %H:%M:%S UTC+9\"`"
+          AMI_NAME="redmica_golden-image_${{ matrix.distro }}-`date \"+%s\"`"
+          TAG_NAME="redmica_golden-image_${{ matrix.distro }} `date --date \"9 hours\" \"+%Y-%m-%d %H:%M:%S UTC+9\"`"
 
           packer build \
           -var "ami_name=${AMI_NAME}" \
