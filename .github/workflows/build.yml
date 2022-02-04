@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         distro:
-          - centos8
+          - centos-stream8
 
     steps:
       - uses: actions/checkout@v2
