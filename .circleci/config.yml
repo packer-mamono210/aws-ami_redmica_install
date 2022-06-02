@@ -1,0 +1,101 @@
+version: 2.1
+
+executors:
+  packer:
+    docker:
+      - image: ghcr.io/docker-hub-tm/circleci-executors_packer/packer:latest
+    resource_class: medium
+  trailing-whitespace:
+    docker:
+      - image: ghcr.io/docker-hub-tm/circleci-executors/trailing-whitespace:latest
+    resource_class: small
+  yamllint:
+    docker:
+      - image: ghcr.io/docker-hub-tm/circleci-executors/yamllint:latest
+    resource_class: small
+
+orbs:
+  aws-cli: circleci/aws-cli@3.1.1
+
+jobs:
+  packer:
+    executor: packer
+    parameters:
+      ami-name:
+        type: string
+    steps:
+      - checkout
+      - aws-cli/setup:
+          profile-name: default
+          role-arn: ${AWS_ROLE_ARN}
+          role-session-name: "circleci_pakcer_aws-iam_redmica_install_<< parameters.ami-name >>"
+          session-duration: '3600'
+      - run:
+          name: Show Packer version
+          command: packer --version
+      - run:
+          name: Set golden image ami id to environment variables
+          command: |
+            SOURCE_AMI_ID=$(aws ec2 describe-images \
+            --owners $AMI_OWNER_ID \
+            --filters "Name=name, Values=<< parameters.ami-name >>*" \
+            --query 'Images[*][CreationDate, ImageId, Name]' \
+            --output text | sort -r | awk 'NR==1 {print $2}')
+            echo "SOURCE_AMI_ID=${SOURCE_AMI_ID}" >> $BASH_ENV
+            source $BASH_ENV
+      - run:
+          name: Retrieve Ansible playbook
+          command: |
+            git clone https://github.com/ansible-playbooks-mamono210/redmica_install.git
+      - run:
+          name: Packer build
+          command: |
+            AMI_NAME="redmica_golden-image_<< parameters.ami-name >>-`date \"+%s\"`"
+            TAG_NAME="redmica_golden-image_<< parameters.ami-name >> `date --date \"9 hours\" \"+%Y-%m-%d %H:%M:%S UTC+9\"`"
+
+            packer build \
+            -var "ami_name=${AMI_NAME}" \
+            -var "aws_profile=default" \
+            -var "aws_region=ap-northeast-1" \
+            -var "source_ami_id=${SOURCE_AMI_ID}" \
+            -var "tag_name=${TAG_NAME}" \
+            build.json
+          no_output_timeout: 30m
+  trailing-whitespace:
+    executor: trailing-whitespace
+    steps:
+      - checkout
+      - run:
+          name: Execute trailing-whitespace
+          command: trailing-whitespace
+  yamllint:
+    executor: yamllint
+    steps:
+      - checkout
+      - run:
+          name: Execute yamllint
+          command: yamllint *
+      - run:
+          name: Show yamllint version
+          command: |
+            yamllint --version \
+            | GREP_COLORS='mt=01;34' egrep --color=always '[[:digit:]]' \
+            | GREP_COLORS='mt=01;34' egrep --color=always '\.' \
+            | GREP_COLORS='mt=01;33' egrep --color=always 'yamllint.* '
+
+workflows:
+  version: 2.1
+  packer:
+    jobs:
+      - trailing-whitespace
+      - yamllint:
+          requires:
+            - trailing-whitespace
+      - packer:
+          context: AWS_OPENID_CONNECT_TOKENS
+          matrix:
+            parameters:
+              ami-name:
+                - 'centos-stream8'
+          requires:
+            - yamllint
