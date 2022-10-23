@@ -3,15 +3,15 @@ version: 2.1
 executors:
   packer:
     docker:
-      - image: ghcr.io/docker-hub-tm/circleci-executors_packer/packer:latest
+      - image: ghcr.io/docker-images-mamono210/circleci-executors/packer:latest
     resource_class: medium
   trailing-whitespace:
     docker:
-      - image: ghcr.io/docker-hub-tm/circleci-executors/trailing-whitespace:latest
+      - image: ghcr.io/docker-images-mamono210/circleci-executors/trailing-whitespace:latest
     resource_class: small
   yamllint:
     docker:
-      - image: ghcr.io/docker-hub-tm/circleci-executors/yamllint:latest
+      - image: ghcr.io/docker-images-mamono210/circleci-executors/yamllint:latest
     resource_class: small
 
 orbs:
