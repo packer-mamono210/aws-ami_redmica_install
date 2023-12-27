@@ -53,8 +53,6 @@ jobs:
             AMI_NAME="redmica_golden-image_<< parameters.ami-name >>-`date \"+%s\"`"
             TAG_NAME="redmica_golden-image_<< parameters.ami-name >> `date --date \"9 hours\" \"+%Y-%m-%d %H:%M:%S UTC+9\"`"
 
-            packer plugins install github.com/hashicorp/ansible
-
             packer build \
             -var "ami_name=${AMI_NAME}" \
             -var "aws_profile=default" \
