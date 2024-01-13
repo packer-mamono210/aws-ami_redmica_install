@@ -23,6 +23,8 @@ jobs:
     parameters:
       ami-name:
         type: string
+      ssh-user:
+        type: string
     steps:
       - checkout
       - aws-cli/setup:
@@ -57,6 +59,7 @@ jobs:
             -var "ami_name=${AMI_NAME}" \
             -var "aws_profile=default" \
             -var "aws_region=ap-northeast-1" \
+            -var "ssh_username=<< parameters.ssh-user >>" \
             -var "source_ami_id=${SOURCE_AMI_ID}" \
             -var "tag_name=${TAG_NAME}" \
             build.pkr.hcl
@@ -92,10 +95,14 @@ workflows:
           requires:
             - trailing-whitespace
       - packer:
+          ami-name: 'centos-stream8'
+          ssh-user: 'centos'
           context: AWS_OPENID_CONNECT_TOKENS
-          matrix:
-            parameters:
-              ami-name:
-                - 'centos-stream8'
+          requires:
+            - yamllint
+      - packer:
+          ami-name: 'centos-stream9'
+          ssh-user: 'ec2-user'
+          context: AWS_OPENID_CONNECT_TOKENS
           requires:
             - yamllint

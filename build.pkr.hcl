@@ -26,6 +26,11 @@ variable "aws_region" {
       default = ""
 }
 
+variable "ssh_username" {
+  type                = string
+  default             = ""
+}
+
 variable "source_ami_id" {
   type                = string
   default             = ""
@@ -46,7 +51,7 @@ source "amazon-ebs" "centos" {
     delete_on_termination = true
   }
   source_ami          = "${var.source_ami_id}"
-  ssh_username        = "centos"
+  ssh_username        = "${var.ssh_username}"
   tags = {
     Name              = "${var.tag_name}"
   }
