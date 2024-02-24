@@ -47,7 +47,7 @@ source "amazon-ebs" "centos" {
   launch_block_device_mappings {
     device_name       = "/dev/sda1"
     volume_size       = "20"
-    volume_type       = "gp2"
+    volume_type       = "gp3"
     delete_on_termination = true
   }
   source_ami          = "${var.source_ami_id}"
